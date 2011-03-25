@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Dev Toy - Experimenting with AppWidgets (you should see the default android clock below)</string>
+    <string name="hello">Dev Toy - Experimenting with AppWidgets \n(you should see the widgets below the button when you pick one)</string>
     <string name="app_name">Toy: App Widgets</string>
     <string name="pickWidget">Pick Widget ...</string>
     

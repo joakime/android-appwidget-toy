@@ -3,6 +3,7 @@ package com.erdfelt.toy.appwidget;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.DialogInterface;
@@ -12,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class ToyAppWidgetActivity extends Activity {
     private static final String TAG                      = ToyAppWidgetActivity.class.getSimpleName();
@@ -20,9 +20,9 @@ public class ToyAppWidgetActivity extends Activity {
     private static final int    REQUEST_CREATE_APPWIDGET = 5;
     private static final int    REQUEST_PICK_APPWIDGET   = 9;
     private static final int    DIALOG_CANCELED          = 1;
-    private AppWidgetManager    mAppWidgetManager;
     private ToyAppWidgetFrame   widgetFrame;
-    private ToyAppWidgetHost    mAppWidgetHost;
+    private AppWidgetManager    mAppWidgetManager;
+    private AppWidgetHost       mAppWidgetHost;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,8 +33,7 @@ public class ToyAppWidgetActivity extends Activity {
 
         mAppWidgetManager = AppWidgetManager.getInstance(this);
 
-        mAppWidgetHost = new ToyAppWidgetHost(this, APPWIDGET_HOST_ID);
-        mAppWidgetHost.startListening();
+        mAppWidgetHost = new AppWidgetHost(this, APPWIDGET_HOST_ID);
 
         Button btnPickWidget = (Button) findViewById(R.id.btnPickWidget);
         btnPickWidget.setOnClickListener(new OnClickListener() {
@@ -48,6 +47,13 @@ public class ToyAppWidgetActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+        mAppWidgetHost.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAppWidgetHost.stopListening();
     }
 
     @Override
@@ -83,7 +89,6 @@ public class ToyAppWidgetActivity extends Activity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_PICK_APPWIDGET:
-                    Toast.makeText(this, "You picked!", Toast.LENGTH_SHORT).show();
                     addAppWidget(data);
                     break;
                 case REQUEST_CREATE_APPWIDGET:
@@ -96,6 +101,8 @@ public class ToyAppWidgetActivity extends Activity {
     private void addAppWidget(Intent data) {
         // TODO: catch bad widget exception when sent
         int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+
+        logIntent("Add App Widget", data);
 
         AppWidgetProviderInfo appWidget = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
 
@@ -122,7 +129,7 @@ public class ToyAppWidgetActivity extends Activity {
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 
-        Log.d(TAG, "dumping extras content=" + extras.toString());
+        logIntent("Complete Add App Widget", data);
 
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
 
@@ -145,5 +152,41 @@ public class ToyAppWidgetActivity extends Activity {
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
         startActivityForResult(pickIntent, REQUEST_PICK_APPWIDGET);
+    }
+
+    private void logIntent(String msg, Intent intent) {
+        StringBuilder dbg = new StringBuilder();
+        dbg.append("Dump of Intent: ").append(msg);
+
+        if (intent.getAction() != null) {
+            dbg.append("\n Action = ").append(intent.getAction());
+        }
+
+        if (intent.getCategories() != null) {
+            for (String category : intent.getCategories()) {
+                dbg.append("\n Category = ").append(category);
+            }
+        }
+
+        if (intent.getData() != null) {
+            dbg.append("\n Data = ").append(intent.getDataString());
+        }
+
+        if (intent.getType() != null) {
+            dbg.append("\n Type = ").append(intent.getType());
+        }
+
+        Bundle bundle = intent.getExtras();
+        for (String key : bundle.keySet()) {
+            Object val = bundle.get(key);
+            dbg.append("\n Bundle[").append(key).append("] = ");
+            if (val == null) {
+                dbg.append("<null>");
+            } else {
+                dbg.append("(").append(val.getClass().getName()).append(") ");
+                dbg.append(val.toString());
+            }
+        }
+        Log.d(TAG, dbg.toString());
     }
 }
