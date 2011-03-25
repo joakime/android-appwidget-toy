@@ -5,8 +5,12 @@
   <TextView android:layout_width="fill_parent"
     android:layout_height="wrap_content" android:text="@string/hello"
     android:layout_margin="5dip" />
-  <Button android:layout_width="wrap_content" android:id="@+id/btnPickWidget" android:layout_height="wrap_content" android:text="@string/pickWidget"></Button>
-  <com.erdfelt.toy.appwidget.ToyAppWidgetFrame android:id="@+id/widgetFrame"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:layout_margin="5dip" android:background="@color/widgetFrameBackground" />
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
+      <Button android:layout_width="wrap_content" android:id="@+id/btnPickWidget" android:text="@string/pickWidget" android:layout_height="wrap_content"></Button>
+      <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/addClock" android:id="@+id/btnPickClock"></Button>
+  </LinearLayout>
+  <com.erdfelt.toy.appwidget.ToyAppWidgetFrame
+    android:id="@+id/widgetFrame" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:layout_margin="5dip"
+    android:background="@color/widgetFrameBackground" />
 </LinearLayout>

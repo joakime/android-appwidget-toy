@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ public class ToyAppWidgetActivity extends Activity {
     private static final int    REQUEST_CREATE_APPWIDGET = 5;
     private static final int    REQUEST_PICK_APPWIDGET   = 9;
     private static final int    DIALOG_CANCELED          = 1;
+    private static final int    DIALOG_CLOCK_NOT_FOUND   = 2;
     private ToyAppWidgetFrame   widgetFrame;
     private AppWidgetManager    mAppWidgetManager;
     private AppWidgetHost       mAppWidgetHost;
@@ -42,6 +44,14 @@ public class ToyAppWidgetActivity extends Activity {
                 onClickSelectWidget();
             }
         });
+
+        Button btnPickClock = (Button) findViewById(R.id.btnPickClock);
+        btnPickClock.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickSelectClockWidget();
+            }
+        });
     }
 
     @Override
@@ -59,7 +69,7 @@ public class ToyAppWidgetActivity extends Activity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case DIALOG_CANCELED:
+            case DIALOG_CANCELED: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Pick Canceled");
                 builder.setMessage("You chose to cancel the widget pick.\nOh well.");
@@ -70,6 +80,19 @@ public class ToyAppWidgetActivity extends Activity {
                     }
                 });
                 return builder.create();
+            }
+            case DIALOG_CLOCK_NOT_FOUND: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Warning");
+                builder.setMessage("Unable to find Clock Widget Provider.");
+                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                return builder.create();
+            }
         }
         return super.onCreateDialog(id);
     }
@@ -143,6 +166,19 @@ public class ToyAppWidgetActivity extends Activity {
 
     private void showAppWidget(ToyAppWidgetInfo launcherInfo) {
         widgetFrame.setWidgetView(launcherInfo);
+    }
+
+    public void onClickSelectClockWidget() {
+        String clockPackageName = "com.android.alarmclock";
+        String clockProviderClass = "com.android.alarmclock.AnalogAppWidgetProvider";
+        ComponentName provider = new ComponentName(clockPackageName, clockProviderClass);
+        
+        int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
+        mAppWidgetManager.bindAppWidgetId(appWidgetId, provider);
+        
+        Intent intent = new Intent();
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        onActivityResult(REQUEST_CREATE_APPWIDGET, Activity.RESULT_OK, intent);
     }
 
     public void onClickSelectWidget() {

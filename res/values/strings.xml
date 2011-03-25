@@ -5,4 +5,6 @@
     <string name="pickWidget">Pick Widget ...</string>
     
     <string name="group_search">Search</string>
+    
+    <string name="addClock">Pick Clock</string>
 </resources>
